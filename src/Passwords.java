@@ -29,7 +29,7 @@ public class Passwords {
         }
     }
 
-    public String generatePassword(int length, boolean special, boolean numbers, boolean letters, boolean upper, boolean lower) {
+    public String generatePassword(int length, boolean special, boolean numbers, boolean letters, boolean upper) {
         ArrayList<String> list = new ArrayList<>(getAllOfLength(length));
 
         if (special)
@@ -39,9 +39,9 @@ public class Passwords {
         if (letters)
             list.retainAll(getAllWithLetters(list));
         if (upper)
-            list.retainAll(getAllUpperCase(list));
-        if (lower)
-            list.retainAll(getAllLowerCase(list));
+            list.retainAll(getAllMixedCase(list));
+        //if (lower)
+        //    list.retainAll(getAllLowerCase(list));
 
         return getWeakestPassword(list);
     }
@@ -53,7 +53,7 @@ public class Passwords {
     public List<String> getAllOfLength(int length, ArrayList<String> list) {
         ArrayList<String> outputList = new ArrayList<>();
         for (String line : list) {
-            if (isLongEnough(line, length))
+            if (line.length() >= length)
                 outputList.add(line);
         }
         return Collections.unmodifiableList(outputList);
@@ -62,8 +62,11 @@ public class Passwords {
     public List<String> getAllSpecialChar(ArrayList<String> list) {
         ArrayList<String> outputList = new ArrayList<>();
         for (String line : list) {
-            if (containsSpecialChar(line))
-                outputList.add(line);
+            for (int i = 0; i < line.length(); i++) {
+                if (!Character.isLetterOrDigit(line.charAt(i)) && !Character.isWhitespace(line.charAt(i))) {
+                    outputList.add(line);
+                }
+            }
         }
         return Collections.unmodifiableList(outputList);
     }
@@ -71,8 +74,11 @@ public class Passwords {
     public List<String> getAllWithNumbers(ArrayList<String> list) {
         ArrayList<String> outputList = new ArrayList<>();
         for (String line : list) {
-            if (containsNumber(line))
-                outputList.add(line);
+            for (int i = 0; i < line.length(); i++) {
+                if (Character.isDigit(line.charAt(i))) {
+                    outputList.add(line);
+                }
+            }
         }
         return Collections.unmodifiableList(outputList);
     }
@@ -80,26 +86,33 @@ public class Passwords {
     public List<String> getAllWithLetters(ArrayList<String> list) {
         ArrayList<String> outputList = new ArrayList<>();
         for (String line : list) {
-            if (containsLetter(line))
-                outputList.add(line);
+            for (int i = 0; i < line.length(); i++) {
+                if (Character.isLetter(line.charAt(i))) {
+                    outputList.add(line);
+                }
+            }
         }
         return Collections.unmodifiableList(outputList);
     }
 
-    public List<String> getAllUpperCase(ArrayList<String> list) {
+    public List<String> getAllMixedCase(ArrayList<String> list) {
         ArrayList<String> outputList = new ArrayList<>();
-        for (String line : list) {
-            if (containsUpperCase(line))
-                outputList.add(line);
-        }
-        return Collections.unmodifiableList(outputList);
-    }
+        boolean[] containsBoth = {false, false};
 
-    public List<String> getAllLowerCase(ArrayList<String> list) {
-        ArrayList<String> outputList = new ArrayList<>();
         for (String line : list) {
-            if (containsLowerCase(line))
-                outputList.add(line);
+            for (int i = 0; i < line.length(); i++) {
+
+                if (Character.isUpperCase(line.charAt(i))) {
+                    containsBoth[0] = true;
+                } else if (Character.isLowerCase(line.charAt(i))) {
+                    containsBoth[1] = true;
+                }
+
+                if (containsBoth[0] && containsBoth[1]) {
+                    outputList.add(line);
+                    break;
+                }
+            }
         }
         return Collections.unmodifiableList(outputList);
     }
@@ -118,66 +131,23 @@ public class Passwords {
         return pwdList.indexOf(password);
     }
 
-    private boolean containsNumber(String line){
-        for (int i = 0; i < line.length(); i++) {
-            if (Character.isDigit(line.charAt(i))) {
-                return true;
-            }
+    public String getRandom() {
+        int index = (int)(Math.random() * pwdList.size());
+        return pwdList.get(index);
+    }
+
+    public String toStringSubList(int length) {
+        String outputString = "";
+        for (int i = 0; i < length; i++) {
+            outputString += (i+1) + "\t" + pwdList.get(i) + "\n";
         }
-        return false;
-    }
-
-    private boolean containsLetter(String line){
-        for (int i = 0; i < line.length(); i++) {
-            if (Character.isLetter(line.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsUpperCase(String line) {
-        for (int i = 0; i < line.length(); i++) {
-            if (Character.isUpperCase(line.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsLowerCase(String line) {
-        for (int i = 0; i < line.length(); i++) {
-            if (Character.isLowerCase(line.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean containsSpecialChar(String line) {
-        for (int i = 0; i < line.length(); i++) {
-            if (!Character.isLetterOrDigit(line.charAt(i)) && !Character.isWhitespace(line.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isLongEnough(String line, int length) {
-        if (line.length() >= length)
-            return true;
-        else
-            return false;
-    }
-
-    public int getWeakness(String password) {
-        return pwdList.indexOf(password);
+        return outputString;
     }
 
     @Override
     public String toString() {
         String outputString = "";
-        int index = 0;
+        int index = 1;
         for (String line : pwdList) {
             outputString += index++ + "\t" + line + "\n";
         }

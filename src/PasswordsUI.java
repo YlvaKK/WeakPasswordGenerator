@@ -19,9 +19,10 @@ public class PasswordsUI {
     private void startUp() {
         System.out.println("Welcome to the world's first weak password generator!\n" +
                 "Type any of the following commands to execute:\n" +
-                "1: Generate a new password\n" +
-                "2: View all passwords\n" +
-                "3: find out how weak your password is\n" +
+                "1: Generate the weakest possible password (with conditions)\n" +
+                "2: Generate a random weak password\n" +
+                "3: View weak passwords list\n" +
+                "4: find out how weak your password is\n" +
                 "Q: Leave");
     }
 
@@ -52,9 +53,12 @@ public class PasswordsUI {
                 generatePassword();
                 break;
             case "2":
-                System.out.println(passwords);
+                getRandom();
                 break;
             case "3":
+                printPasswords();
+                break;
+            case "4":
                 getWeakness();
                 break;
             case "q":
@@ -73,11 +77,9 @@ public class PasswordsUI {
         boolean includeNumbers = nextBool();
         System.out.print("Must include letters? Y/N ");
         boolean includeLetters = nextBool();
-        System.out.print("Must include uppercase characters? Y/N ");
+        System.out.print("Must include both upper- and lowercase Y/N ");
         boolean includeUpperCase = nextBool();
-        System.out.print("Must include lowercase characters? Y/N ");
-        boolean includeLowerCase = nextBool();
-        String weakestPassword = passwords.generatePassword(pwdLength, includeSymbols, includeNumbers, includeLetters, includeUpperCase, includeLowerCase);
+        String weakestPassword = passwords.generatePassword(pwdLength, includeSymbols, includeNumbers, includeLetters, includeUpperCase);
 
         if (weakestPassword.equals("n/a")) {
             System.out.println("None of the 10,000 most common passwords meet these requirements. Try a Strong password generator instead.");
@@ -88,9 +90,26 @@ public class PasswordsUI {
 
     }
 
-    private void getWeakness(){
+    private void getRandom() {
+        String password = passwords.getRandom();
+        System.out.println("Your weak password is \"" + password + "\".");
+        System.out.println("There are only " + passwords.findPosition(password) + " more common passwords.");
+    }
+
+    private void printPasswords() {
+        System.out.print("How many of the weakest passwords do you wish to see? (0-10000) ");
+        int listLength = nextInt();
+
+        if (listLength > 10000 || listLength < 0) {
+            System.out.println("Error: That number is not within the allowed span.");
+        } else {
+            System.out.print(passwords.toStringSubList(listLength));
+        }
+    }
+
+    private void getWeakness() {
         System.out.print("What's your password? ");
-        int weakness = passwords.getWeakness(scanner.nextLine());
+        int weakness = passwords.findPosition(scanner.nextLine());
         String numeral;
 
         switch (weakness) {
@@ -106,8 +125,6 @@ public class PasswordsUI {
         }
 
         System.out.println("Your password is the " + numeral + "most commonly used password.");
-
-
     }
 
     private int nextInt() {
