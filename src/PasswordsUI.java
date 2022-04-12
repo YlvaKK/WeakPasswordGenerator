@@ -19,8 +19,9 @@ public class PasswordsUI {
     private void startUp() {
         System.out.println("Welcome to the world's first weak password generator!\n" +
                 "Type any of the following commands to execute:\n" +
-                "G: Generate a new password\n" +
-                "V: View all passwords\n" +
+                "1: Generate a new password\n" +
+                "2: View all passwords\n" +
+                "3: find out how weak your password is\n" +
                 "Q: Leave");
     }
 
@@ -47,11 +48,14 @@ public class PasswordsUI {
 
     private void handleCommand(String command) {
         switch(command) {
-            case "g":
+            case "1":
                 generatePassword();
                 break;
-            case "v":
+            case "2":
                 System.out.println(passwords);
+                break;
+            case "3":
+                getWeakness();
                 break;
             case "q":
                 break;
@@ -81,6 +85,28 @@ public class PasswordsUI {
             System.out.println("The weakest possible password with your requirements is \"" + weakestPassword + "\".");
             System.out.println("There are only " + passwords.findPosition(weakestPassword) + " more common passwords.");
         }
+
+    }
+
+    private void getWeakness(){
+        System.out.print("What's your password? ");
+        int weakness = passwords.getWeakness(scanner.nextLine());
+        String numeral;
+
+        switch (weakness) {
+            case -1 -> {
+                System.out.println("Your password is not one of the 10,000 most commonly used passwords. " +
+                        "That doesn't mean it's strong, but it's a start.");
+                return;
+            }
+            case 0 -> numeral = "";
+            case 1 -> numeral = "2nd ";
+            case 2 -> numeral = "3rd ";
+            default -> numeral = ((Integer) weakness + 1) + "th ";
+        }
+
+        System.out.println("Your password is the " + numeral + "most commonly used password.");
+
 
     }
 

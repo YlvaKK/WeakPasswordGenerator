@@ -170,6 +170,10 @@ public class Passwords {
             return false;
     }
 
+    public int getWeakness(String password) {
+        return pwdList.indexOf(password);
+    }
+
     @Override
     public String toString() {
         String outputString = "";
